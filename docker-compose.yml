@@ -1,0 +1,60 @@
+# Hai bản API dùng CHUNG một database và dữ liệu mẫu:
+#   vulnerable -> http://localhost:3001  (có lỗi cố ý, chỉ chạy local)
+#   secure     -> http://localhost:3002  (đã sửa)
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: shop
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?Thiếu DB_PASSWORD trong .env}
+      APP_DB_PASSWORD: ${APP_DB_PASSWORD:?Thiếu APP_DB_PASSWORD trong .env}
+    volumes:
+      - db-data:/var/lib/postgresql/data
+      # Chỉ chạy khi volume còn trống (lần khởi tạo đầu tiên)
+      - ./db/init:/docker-entrypoint-initdb.d:ro
+    ports:
+      - "127.0.0.1:5432:5432"   # chỉ máy local kết nối được
+    healthcheck:
+      # -h 127.0.0.1 để chỉ báo "sẵn sàng" khi server thật đã chạy, không phải server tạm lúc khởi tạo
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U postgres -d shop"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+  vulnerable:
+    build: ./vulnerable
+    environment:
+      # LỖI #8: dùng tài khoản superuser của database
+      DATABASE_URL: postgres://postgres:${DB_PASSWORD}@db:5432/shop
+    ports:
+      - "127.0.0.1:3001:3000"   # bản có lỗi không được mở ra mạng LAN
+    depends_on:
+      db:
+        condition: service_healthy
+
+  secure:
+    build: ./secure
+    environment:
+      JWT_SECRET: ${JWT_SECRET:?Thiếu JWT_SECRET trong .env}
+      # SỬA #8: tài khoản quyền tối thiểu (xem db/init/02-roles.sh)
+      DATABASE_URL: postgres://app_user:${APP_DB_PASSWORD}@db:5432/shop
+      CORS_ORIGINS: http://localhost:3002
+      LOGIN_RATE_LIMIT_MAX: "5"
+    ports:
+      - "3002:3000"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  # Nạp dữ liệu mẫu: docker compose run --rm seed
+  seed:
+    build: ./db
+    profiles: ["tools"]
+    environment:
+      DATABASE_URL: postgres://postgres:${DB_PASSWORD}@db:5432/shop
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  db-data:

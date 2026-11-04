@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Shop demo - BẢN ĐÃ SỬA</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 860px; margin: 24px auto; padding: 0 16px; }
+    .badge { padding: 2px 10px; border-radius: 6px; color: #fff; background: #1e8449; font-size: 0.55em; vertical-align: middle; }
+    section { border: 1px solid #ccc; border-radius: 8px; padding: 4px 16px 12px; margin: 12px 0; }
+    input, textarea { width: 100%; box-sizing: border-box; margin: 4px 0; padding: 6px; }
+    .row { display: flex; gap: 8px; }
+    .row > * { flex: 1; }
+    button { padding: 6px 12px; cursor: pointer; margin-right: 6px; }
+    pre { background: #f4f4f4; color: #111; padding: 10px; overflow-x: auto; white-space: pre-wrap; }
+  </style>
+</head>
+<body>
+  <h1>Shop demo <span class="badge">BẢN ĐÃ SỬA</span></h1>
+
+  <section>
+    <h2>1. Đăng nhập</h2>
+    <div class="row">
+      <input id="email" placeholder="email" value="a@shop.test">
+      <input id="password" type="password" placeholder="mật khẩu" value="CustomerA@123">
+    </div>
+    <button id="login">Đăng nhập</button>
+    <button id="logout">Đăng xuất</button>
+    <p id="who"></p>
+  </section>
+
+  <section>
+    <h2>2. Tìm sản phẩm</h2>
+    <input id="q" placeholder="từ khóa, ví dụ: áo">
+    <button id="search">Tìm</button>
+    <ul id="products"></ul>
+  </section>
+
+  <section>
+    <h2>3. Xem đơn hàng</h2>
+    <input id="orderId" placeholder="id đơn hàng" value="1">
+    <button id="viewOrder">Xem đơn</button>
+  </section>
+
+  <section>
+    <h2>4. Nhận xét đơn hàng (dùng id ở mục 3)</h2>
+    <textarea id="comment" rows="2" placeholder="nội dung nhận xét"></textarea>
+    <button id="postReview">Gửi nhận xét</button>
+    <button id="loadReviews">Tải nhận xét</button>
+    <ul id="reviews"></ul>
+  </section>
+
+  <section>
+    <h2>Kết quả API</h2>
+    <pre id="out">(chưa gọi API)</pre>
+  </section>
+
+  <script src="app.js"></script>
+</body>
+</html>
