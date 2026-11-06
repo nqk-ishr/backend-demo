@@ -4,56 +4,118 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Shop demo - BẢN ĐÃ SỬA</title>
-  <style>
-    body { font-family: system-ui, sans-serif; max-width: 860px; margin: 24px auto; padding: 0 16px; }
-    .badge { padding: 2px 10px; border-radius: 6px; color: #fff; background: #1e8449; font-size: 0.55em; vertical-align: middle; }
-    section { border: 1px solid #ccc; border-radius: 8px; padding: 4px 16px 12px; margin: 12px 0; }
-    input, textarea { width: 100%; box-sizing: border-box; margin: 4px 0; padding: 6px; }
-    .row { display: flex; gap: 8px; }
-    .row > * { flex: 1; }
-    button { padding: 6px 12px; cursor: pointer; margin-right: 6px; }
-    pre { background: #f4f4f4; color: #111; padding: 10px; overflow-x: auto; white-space: pre-wrap; }
-  </style>
+  <link rel="stylesheet" href="style.css">
 </head>
-<body>
-  <h1>Shop demo <span class="badge">BẢN ĐÃ SỬA</span></h1>
-
-  <section>
-    <h2>1. Đăng nhập</h2>
-    <div class="row">
-      <input id="email" placeholder="email" value="a@shop.test">
-      <input id="password" type="password" placeholder="mật khẩu" value="CustomerA@123">
+<body class="variant-secure">
+  <header class="hero">
+    <div class="hero-inner">
+      <div class="logo">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 7h12l-1 13H7L6 7z"/><path d="M9 7a3 3 0 0 1 6 0"/></svg>
+      </div>
+      <div>
+        <h1>Shop demo</h1>
+        <p>Minh họa bảo mật backend: xác thực, phân quyền, SQL Injection, XSS</p>
+      </div>
+      <span class="badge">BẢN ĐÃ SỬA</span>
     </div>
-    <button id="login">Đăng nhập</button>
-    <button id="logout">Đăng xuất</button>
-    <p id="who"></p>
-  </section>
+  </header>
 
-  <section>
-    <h2>2. Tìm sản phẩm</h2>
-    <input id="q" placeholder="từ khóa, ví dụ: áo">
-    <button id="search">Tìm</button>
-    <ul id="products"></ul>
-  </section>
+  <main>
+    <section class="card" id="sec-login">
+      <div class="card-head">
+        <span class="step">1</span>
+        <div>
+          <h2>Đăng nhập</h2>
+          <p class="card-sub">Bấm "Đăng nhập" để lấy token. Các mục cần quyền bên dưới sẽ tự gửi token này.</p>
+        </div>
+      </div>
+      <form id="loginForm" autocomplete="off" novalidate>
+        <div class="row">
+          <div>
+            <label class="field" for="email">Email</label>
+            <input id="email" placeholder="email" value="a@shop.test">
+          </div>
+          <div>
+            <label class="field" for="password">Mật khẩu</label>
+            <input id="password" type="password" placeholder="mật khẩu" value="CustomerA@123">
+          </div>
+        </div>
+        <div class="actions">
+          <button class="primary" id="login" type="submit">Đăng nhập</button>
+          <button class="ghost" id="logout" type="button">Đăng xuất</button>
+          <span class="hint">Điền nhanh:</span>
+          <button class="chip" type="button" data-email="a@shop.test" data-password="CustomerA@123">Khách A</button>
+          <button class="chip" type="button" data-email="b@shop.test" data-password="CustomerB@123">Khách B</button>
+          <button class="chip" type="button" data-email="admin@shop.test" data-password="Admin@12345">Admin</button>
+        </div>
+      </form>
+      <div id="who" class="who">
+        <div id="avatar" class="avatar">?</div>
+        <span id="whoName" class="who-name">Chưa đăng nhập</span>
+        <span id="whoRole" class="pill" hidden></span>
+      </div>
+      <div id="loginMsg" aria-live="polite"></div>
+    </section>
 
-  <section>
-    <h2>3. Xem đơn hàng</h2>
-    <input id="orderId" placeholder="id đơn hàng" value="1">
-    <button id="viewOrder">Xem đơn</button>
-  </section>
+    <section class="card" id="sec-products">
+      <div class="card-head">
+        <span class="step">2</span>
+        <div>
+          <h2>Tìm sản phẩm</h2>
+          <p class="card-sub">API công khai, không cần đăng nhập. Để trống rồi bấm "Tìm" để xem tất cả.</p>
+        </div>
+      </div>
+      <form id="searchForm" class="inline" autocomplete="off">
+        <input id="q" placeholder="từ khóa, ví dụ: áo" aria-label="Từ khóa tìm kiếm">
+        <button class="primary" id="search" type="submit">Tìm</button>
+      </form>
+      <div id="productsMsg" aria-live="polite"></div>
+      <ul id="products" class="grid"></ul>
+    </section>
 
-  <section>
-    <h2>4. Nhận xét đơn hàng (dùng id ở mục 3)</h2>
-    <textarea id="comment" rows="2" placeholder="nội dung nhận xét"></textarea>
-    <button id="postReview">Gửi nhận xét</button>
-    <button id="loadReviews">Tải nhận xét</button>
-    <ul id="reviews"></ul>
-  </section>
+    <section class="card" id="sec-orders">
+      <div class="card-head">
+        <span class="step">3</span>
+        <div>
+          <h2>Xem đơn hàng</h2>
+          <p class="card-sub">Cần đăng nhập. Thử đơn #1 và #2 (của khách A), #3 (của khách B).</p>
+        </div>
+      </div>
+      <form id="orderForm" class="inline" autocomplete="off">
+        <input id="orderId" placeholder="id đơn hàng" value="1" aria-label="Id đơn hàng">
+        <button class="primary" id="viewOrder" type="submit">Xem đơn</button>
+      </form>
+      <div id="orderResult" aria-live="polite"></div>
+    </section>
 
-  <section>
-    <h2>Kết quả API</h2>
-    <pre id="out">(chưa gọi API)</pre>
-  </section>
+    <section class="card" id="sec-reviews">
+      <div class="card-head">
+        <span class="step">4</span>
+        <div>
+          <h2>Nhận xét đơn hàng</h2>
+          <p class="card-sub" id="reviewHint">Dùng id đơn ở mục 3.</p>
+        </div>
+      </div>
+      <label class="field" for="comment">Nội dung nhận xét</label>
+      <textarea id="comment" rows="3" placeholder="nội dung nhận xét"></textarea>
+      <div class="actions">
+        <button class="primary" id="postReview" type="button">Gửi nhận xét</button>
+        <button class="ghost" id="loadReviews" type="button">Tải nhận xét</button>
+      </div>
+      <div id="reviewMsg" aria-live="polite"></div>
+      <ul id="reviews" class="reviews"></ul>
+    </section>
+
+    <section class="card log">
+      <details open>
+        <summary>Nhật ký API (lần gọi gần nhất)</summary>
+        <p class="card-sub">Dành cho người trình bày: mã HTTP và nội dung phản hồi gốc của server.</p>
+        <pre id="out">(chưa gọi API)</pre>
+      </details>
+    </section>
+  </main>
+
+  <footer>Dữ liệu và mật khẩu trong trang này chỉ dùng cho demo.</footer>
 
   <script src="app.js"></script>
 </body>
