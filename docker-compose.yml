@@ -13,7 +13,7 @@ services:
       # Chỉ chạy khi volume còn trống (lần khởi tạo đầu tiên)
       - ./db/init:/docker-entrypoint-initdb.d:ro
     ports:
-      - "127.0.0.1:5432:5432"   # chỉ máy local kết nối được
+      - "127.0.0.1:5433:5432"   # chỉ máy local kết nối được
     healthcheck:
       # -h 127.0.0.1 để chỉ báo "sẵn sàng" khi server thật đã chạy, không phải server tạm lúc khởi tạo
       test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U postgres -d shop"]

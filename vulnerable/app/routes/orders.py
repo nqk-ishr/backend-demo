@@ -12,7 +12,7 @@ router = APIRouter()
 
 # Danh sách đơn: khách thấy đơn của mình, admin thấy tất cả
 @router.get("/orders")
-def list_orders(user: CurrentUser = Depends(authenticate)):
+def list_orders(user: CurrentUser = Depends(authenticate)): # Gọi depends(authenticate) nên cần có token/ token đúng -> cần đăng nhập -> cần đăng ký
     with pool.connection() as conn:
         if user.role == "admin":
             return conn.execute("SELECT * FROM orders ORDER BY id").fetchall()
